@@ -40,26 +40,40 @@ def list_event_details():
     """
     List the events, show all details except Customers who have purchased tickets."""
     
-    #start
-    format_event_header_str = "{: <20}"
-    format_event_details_str = "{: <20}" 
+    #Formatted Style
+    display_formatted_column_width = "{: <30} {: >15} {: ^14} {: >8} {: >12}"
+    header_style_style = "="
+    footer_style_style = "-"
+    title = "===== Event Details Listing ====="
     
+    #Render the title
+    display_formatted_row([title ], "{: ^82}")    
+    
+    #Render the header
+    display_formatted_row([ header_style_style*30, header_style_style*15, header_style_style*14, header_style_style*8, header_style_style*12 ], display_formatted_column_width) 
+    display_formatted_row([ "Event Name",         "Age Restriction",      "Event Date",          "Capacity",            "Tickets Sold"       ], display_formatted_column_width)
+    display_formatted_row([ header_style_style*30, header_style_style*15, header_style_style*14, header_style_style*8, header_style_style*12 ], display_formatted_column_width) 
 
-    for event_name, event_details in sorted(events.items()):
-        print("\n")
-        v_event_name = {event_name}
-        display_formatted_row([v_event_name],format_event_header_str)
-        display_formatted_row([line_style_str],format_line_str)
-         
-        for v_event_details in sorted(event_details.items()):
-            v_age_restriction_str = {v_event_details[0]} #set age_restriction
-            #v_event_date_date = {v_event_details[1]} #set event_date
-            #v_capacity_int = {v_event_details[2]} #set capacity
-            #v_tickets_sold_int = {v_event_details[3]} #set tickets_sold
-            
-            display_formatted_row([v_age_restriction_str],format_event_details_str)
+    #Sorted by Event Name
+    sorted_events = sorted(events.items(), key=lambda x: x[0])
+    
+    #Retrive value from the list
+    for event_name, details in sorted_events:
         
-    input("\nPress Enter to continue.")     
+        #Set Value
+        v_event_name = event_name
+        v_event_date = details['event_date']
+        v_age_restriction = details['age_restriction']
+        v_capacity = details['capacity']
+        v_tickets_sold = details['tickets_sold']
+        
+        #Render into the row
+        display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold], display_formatted_column_width)
+    
+    #Render the footer
+    display_formatted_row([ footer_style_style*82 ], "{: ^82}")     
+    
+    input("\nPress Enter to return to the (Menu) list ...")     
     #end   
 
 def buy_tickets():
@@ -83,7 +97,7 @@ def disp_menu():
     """
     Displays the menu and current date.  No parameters required.
     """
-    print("==== WELCOME TO SELWYN EVENT TICKETING SYSTEM ===")
+    print("\n\n==== WELCOME TO SELWYN EVENT TICKETING SYSTEM ===")
     print(" 1 - List Customers")
     print(" 2 - List Customers and their Events")
     print(" 3 - List Event Details")
@@ -102,7 +116,8 @@ response = ""
 while response != "X":
     disp_menu()
     # Display menu for the first time, and ask for response
-    response = input("Please enter menu choice: ").upper()    
+    response = input("\nPlease enter menu choice: ").upper() 
+       
     if response == "1":
         list_all_customers()
     elif response == "2":
@@ -117,5 +132,6 @@ while response != "X":
         add_new_customer()
     elif response != "X":
         print("\n*** Invalid response, please try again (enter 1-6 or X)\n")
+
 print("\n=== Thank you for using the SELWYN EVENT TICKET SYSTEM! ===\n")
 
