@@ -9,9 +9,8 @@ from datetime import datetime,timedelta     # datetime module is required for wo
 from set_data import customers,events,unique_id,display_formatted_row   
 
 #Start Layout format
-format_line_str = "{: <100}"
-line_style_str = "="  
-format_line_width = 100 
+double_underline_style = "="
+single_underline_style = "-"
 #End Layout format
 
 
@@ -34,30 +33,105 @@ def list_all_customers():
 def list_customers_and_tickets():
     """
     Lists Customer details (including birth date), and the events they have purchased tickets to attend."""
-    input("\nPress Enter to continue.")
+    
+    #Define title and Formatted Style
+    display_formatted_column_width = "{: <30} {: <30} {: ^11} {: <30}"
+    title = "===== List Customers and their Events ====="
+    
+    #Render the title
+    display_formatted_row([title], "{: ^100}")    
+    
+    #Render the header
+    #N.A
+    
+    #Sorted for customer listing ordered by family name, then first name
+    customers_sorted = sorted(customers, key=lambda x: (x[2], x[1]))
+    
+    #Retrieve customer list    
+    for customer in customers_sorted:
+        v_customer_id = customer[0]
+        v_first_name = customer[1]
+        v_family_name = customer[2]
+        v_birthdate = customer[3]
+        v_email = customer[4]
+        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
 
+        #Render Customer Info
+        print(f"\n Customer ID : {v_customer_id}") 
+        print(f"\n First Name  : {v_first_name}")
+        print(f"\n Family Name : {v_family_name}") 
+        print(f"\n Birth Date  : {v_formatted_birthdate}")  
+        print(f"\n Email       : {v_email}") 
+        
+        #Render the event list bought by customer
+        list_events_by_customerid(v_customer_id)
+        
+        display_formatted_row([double_underline_style*30], "{: ^85}") 
+    #Render the footer
+    display_formatted_row([single_underline_style*85], "{: ^85}")     
+    
+    input("\nPress Enter to return to the (Menu) list ...")     
+    #end   
+    
+def list_events_by_customerid(p_customer_id):
+    #Variables
+    total_ticket_bought = 0
+    
+    #Define Formatted Style
+    display_customer_event_formatted_column_width = "{: <30} {: ^15} {: >14} {: >8} {: >14}"
+        
+    #Render the header
+    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+    display_formatted_row(["Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Bought"           ], display_customer_event_formatted_column_width)
+    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+
+    #Sorted by Event Name
+    sorted_events = sorted(events.items(), key=lambda x: x[0])
+   
+    #Get the list of event bought by customer
+    for event_name, details in sorted_events:
+        for customer_id, tickets_bought in details["customers"]:
+            if customer_id == p_customer_id:
+                #Set Value
+                
+                v_event_name = event_name
+                v_event_date = details['event_date']
+                v_age_restriction = details['age_restriction']
+                v_capacity = details['capacity']
+                v_tickets_bought = tickets_bought
+                 
+                total_ticket_bought = total_ticket_bought + v_tickets_bought
+                        
+                #Render into the row
+                display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
+    
+                    
+    if (total_ticket_bought>0):
+        display_formatted_row([f"\nTotal tickets bought : {total_ticket_bought}" ], "{: <86}")
+    else:
+        display_formatted_row(["*** No ticket bought ***"], "{: ^86}")       
+        
+        
 def list_event_details():
     """
     List the events, show all details except Customers who have purchased tickets."""
     
-    #Formatted Style
-    display_formatted_column_width = "{: <30} {: >15} {: ^14} {: >8} {: >12}"
-    header_style_style = "="
-    footer_style_style = "-"
+    #Define title and Formatted Style
     title = "===== Event Details Listing ====="
-    
+    display_event_formatted_column_width = "{: <30} {: >15} {: ^14} {: >8} {: >12}"
+
     #Render the title
-    display_formatted_row([title ], "{: ^82}")    
+    display_formatted_row([title], "{: ^82}")    
     
     #Render the header
-    display_formatted_row([ header_style_style*30, header_style_style*15, header_style_style*14, header_style_style*8, header_style_style*12 ], display_formatted_column_width) 
-    display_formatted_row([ "Event Name",         "Age Restriction",      "Event Date",          "Capacity",            "Tickets Sold"       ], display_formatted_column_width)
-    display_formatted_row([ header_style_style*30, header_style_style*15, header_style_style*14, header_style_style*8, header_style_style*12 ], display_formatted_column_width) 
+    display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12 ], display_event_formatted_column_width) 
+    display_formatted_row(["Event Name"         , "Age Restriction"    , "Event Date"         , "Capacity"          , "Tickets Sold"        ], display_event_formatted_column_width)
+    display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12 ], display_event_formatted_column_width) 
 
     #Sorted by Event Name
     sorted_events = sorted(events.items(), key=lambda x: x[0])
     
-    #Retrive value from the list
+    #Retrieve value from the list
     for event_name, details in sorted_events:
         
         #Set Value
@@ -68,10 +142,10 @@ def list_event_details():
         v_tickets_sold = details['tickets_sold']
         
         #Render into the row
-        display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold], display_formatted_column_width)
+        display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold], display_event_formatted_column_width)
     
     #Render the footer
-    display_formatted_row([ footer_style_style*82 ], "{: ^82}")     
+    display_formatted_row([single_underline_style*82], "{: ^82}")     
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
