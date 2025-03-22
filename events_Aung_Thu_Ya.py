@@ -1,19 +1,38 @@
 # ============== SELWYN EVENT TICKETING SYSTEM ==============
 # Student Name: AUNG THU YA
 # Student ID : 1164080
-# ================================================================
+# ===========================================================
  
 from datetime import datetime,timedelta     # datetime module is required for working with dates
+from datetime import date
 
 # Make the variables and function in set_data.py available in this code (without needing 'set_data.' prefix)
 from set_data import customers,events,unique_id,display_formatted_row   
 
-#Start Layout format
+#Student and Assessment info
+v_student_id = "1164080"
+v_student_name = "AUNG THU YA"
+v_assement_name = "=== COMP 636: Python Assessment ==="
+
+#Date time value
+v_current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+v_today = date.today()
+
+#Start Layout formats
 double_underline_style = "="
 single_underline_style = "-"
 #End Layout format
 
-
+def disp_student_info():
+    """
+    Displays the student info and current date.
+    """
+    display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")      
+    display_formatted_row(["\nStudent ID", f"{v_student_id}"], "{: <20} : {: <80}")
+    display_formatted_row(["\nStudent Name", f"{v_student_name}"], "{: <20} : {: <80}") 
+    display_formatted_row(["\nDate Time", f"{v_current_datetime}"], "{: <20} : {: <80}") 
+    display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")           
+        
 def list_all_customers():
     """
     Lists customer details.
@@ -41,9 +60,6 @@ def list_customers_and_tickets():
     #Render the title
     display_formatted_row([title], "{: ^100}")    
     
-    #Render the header
-    #N.A
-    
     #Sorted for customer listing ordered by family name, then first name
     customers_sorted = sorted(customers, key=lambda x: (x[2], x[1]))
     
@@ -57,18 +73,14 @@ def list_customers_and_tickets():
         v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
 
         #Render Customer Info
-        print(f"\n Customer ID : {v_customer_id}") 
-        print(f"\n First Name  : {v_first_name}")
-        print(f"\n Family Name : {v_family_name}") 
-        print(f"\n Birth Date  : {v_formatted_birthdate}")  
-        print(f"\n Email       : {v_email}") 
-        
+        display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFirst Name", f"{v_first_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFamily Name", f"{v_family_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nnEmail", f"{v_email}"], "{: <20} : {: <50}") 
+   
         #Render the event list bought by customer
         list_events_by_customerid(v_customer_id)
-        
-        display_formatted_row([double_underline_style*30], "{: ^85}") 
-    #Render the footer
-    display_formatted_row([single_underline_style*85], "{: ^85}")     
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
@@ -91,26 +103,32 @@ def list_events_by_customerid(p_customer_id):
     #Get the list of event bought by customer
     for event_name, details in sorted_events:
         for customer_id, tickets_bought in details["customers"]:
-            if customer_id == p_customer_id:
+            #Check customer bought the event
+            if customer_id == p_customer_id: 
                 #Set Value
-                
                 v_event_name = event_name
                 v_event_date = details['event_date']
                 v_age_restriction = details['age_restriction']
                 v_capacity = details['capacity']
                 v_tickets_bought = tickets_bought
-                 
+                
+                #Get the total ticket 
                 total_ticket_bought = total_ticket_bought + v_tickets_bought
                         
-                #Render into the row
+                #Render the list of event
                 display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
     
-                    
+    #Render the sub group break line
+    display_formatted_row([single_underline_style*85], "{: ^85}")   
+       
+    #Check total ticket value is 0 then show No ticket bought else show the total ticket value bought by customer                
     if (total_ticket_bought>0):
-        display_formatted_row([f"\nTotal tickets bought : {total_ticket_bought}" ], "{: <86}")
+        display_formatted_row([f"Total tickets bought : {total_ticket_bought}" ], "{:>85}")
     else:
         display_formatted_row(["*** No ticket bought ***"], "{: ^86}")       
-        
+      
+    #Render the sub group break line
+    display_formatted_row([single_underline_style*85], "{: ^85}")   
         
 def list_event_details():
     """
@@ -125,7 +143,7 @@ def list_event_details():
     
     #Render the header
     display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12 ], display_event_formatted_column_width) 
-    display_formatted_row(["Event Name"         , "Age Restriction"    , "Event Date"         , "Capacity"          , "Tickets Sold"        ], display_event_formatted_column_width)
+    display_formatted_row(["Event Name"             , "Age Restriction"        , "Event Date"             , "Capacity"              , "Tickets Sold"            ], display_event_formatted_column_width)
     display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12 ], display_event_formatted_column_width) 
 
     #Sorted by Event Name
@@ -141,7 +159,7 @@ def list_event_details():
         v_capacity = details['capacity']
         v_tickets_sold = details['tickets_sold']
         
-        #Render into the row
+        #Render list of the event
         display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold], display_event_formatted_column_width)
     
     #Render the footer
@@ -162,10 +180,48 @@ def add_new_customer():
 
 def list_future_available_events():
     """
-    List all future events that have tickets available
-    """
-    pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
+    List all future events that have tickets available who have purchased tickets."""
+    
+    #Define title and Formatted Style
+    title = "===== Event Listing - Future event with available ticket ====="
+    display_event_formatted_column_width = "{: <30} {: >15} {: ^14} {: >8} {: >12} {: >26}"
 
+    #Render the title
+    display_formatted_row([title], "{: ^108}")    
+    
+    #Render the header
+    display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12, double_underline_style*26    ], display_event_formatted_column_width) 
+    display_formatted_row(["Event Name"             , "Age Restriction"        , "Event Date"             , "Capacity"              , "Tickets Sold"           , "Available Ticket As of Now" ], display_event_formatted_column_width)
+    display_formatted_row([double_underline_style*30, double_underline_style*15, double_underline_style*14, double_underline_style*8, double_underline_style*12, double_underline_style*26    ], display_event_formatted_column_width) 
+
+    #Filter with future event and available tiket event
+    filtered_events = {}
+    for name, details in events.items():
+        if details["event_date"] > v_today and (details["capacity"] - details["tickets_sold"]) > 0:
+            filtered_events[name] = details
+
+    #Sorted by Event Date asc order
+    sorted_events = dict(sorted(filtered_events.items(), key=lambda x: x[1]["event_date"], reverse=False))
+     
+    #Retrieve value from the list
+    for event_name, details in sorted_events.items():
+        
+        #Set Value
+        v_event_name = event_name
+        v_event_date = details['event_date']
+        v_age_restriction = details['age_restriction']
+        v_capacity = details['capacity']
+        v_tickets_sold = details['tickets_sold']
+        v_tickets_available = v_capacity - v_tickets_sold     
+        
+        #Render list of the event
+        display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold, v_tickets_available], display_event_formatted_column_width)
+    
+    #Render the footer
+    display_formatted_row([single_underline_style*82], "{: ^108}")     
+    
+    input("\nPress Enter to return to the (Menu) list ...")     
+    #end   
 
 def disp_menu():
     """
@@ -179,13 +235,15 @@ def disp_menu():
     print(" 5 - Future Events with tickets")
     print(" 6 - Add New Customer")
     print(" X - eXit (stops the program)")
-
-
+   
 # ------------ This is the main program ------------------------
 
 # Don't change the menu numbering or function names in this menu.
 # Although you can add arguments to the function calls, if you wish.
 # Repeat this loop until the user enters an "X" or "x"
+
+disp_student_info()
+
 response = ""
 while response != "X":
     disp_menu()

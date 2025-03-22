@@ -38,7 +38,7 @@ events = {
            # age restriction is the integer age limit for attendings the event, ticket purchasers must be at least this old
            "age_restriction":18,
            "event_date":date(2025,7,21),
-           "capacity":10,
+           "capacity":11,
             "tickets_sold":10,
             "customers":[(923,2),(786,4),(121,4)]},
 }
