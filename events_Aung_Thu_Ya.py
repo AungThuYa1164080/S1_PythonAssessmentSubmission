@@ -1,14 +1,18 @@
 # ============== SELWYN EVENT TICKETING SYSTEM ==============
-# Student Name: AUNG THU YA
-# Student ID : 1164080
+# Student Name : AUNG THU YA
+# Student ID   : 1164080
+# For          : COMP 636: Python Assessment
 # ===========================================================
  
+#region Import List
 from datetime import datetime,timedelta     # datetime module is required for working with dates
 from datetime import date
 
 # Make the variables and function in set_data.py available in this code (without needing 'set_data.' prefix)
 from set_data import customers,events,unique_id,display_formatted_row   
+#endregion
 
+#region Global Variable
 #Student and Assessment info
 v_student_id = "1164080"
 v_student_name = "AUNG THU YA"
@@ -23,6 +27,9 @@ double_underline_style = "="
 single_underline_style = "-"
 #End Layout format
 
+#endregion
+
+#region Student Info
 def disp_student_info():
     """
     Displays the student info and current date.
@@ -32,7 +39,24 @@ def disp_student_info():
     display_formatted_row(["\nStudent Name", f"{v_student_name}"], "{: <20} : {: <80}") 
     display_formatted_row(["\nDate Time", f"{v_current_datetime}"], "{: <20} : {: <80}") 
     display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")           
-        
+#endregion
+
+#region Menu List
+def disp_menu():
+    """
+    Displays the menu and current date.  No parameters required.
+    """
+    print("\n\n==== WELCOME TO SELWYN EVENT TICKETING SYSTEM ===")
+    print(" 1 - List Customers")
+    print(" 2 - List Customers and their Events")
+    print(" 3 - List Event Details")
+    print(" 4 - Buy Tickets")
+    print(" 5 - Future Events with tickets")
+    print(" 6 - Add New Customer")
+    print(" X - eXit (stops the program)")
+#endregion   
+   
+#region Menu 1 : List Customers    
 def list_all_customers():
     """
     Lists customer details.
@@ -48,6 +72,9 @@ def list_all_customers():
 
         display_formatted_row([id,fname,famname,birthdate,email],format_str)     # Use the display_formatted_row() function to display each row with consistent spacing
     input("\nPress Enter to continue.")
+#endregion
+
+#region Menu 2 : List Customers and their Events
 
 def list_customers_and_tickets():
     """
@@ -107,7 +134,7 @@ def list_events_by_customerid(p_customer_id):
             if customer_id == p_customer_id: 
                 #Set Value
                 v_event_name = event_name
-                v_event_date = details['event_date']
+                v_event_date = details['event_date'].strftime("%d %b %Y")
                 v_age_restriction = details['age_restriction']
                 v_capacity = details['capacity']
                 v_tickets_bought = tickets_bought
@@ -129,7 +156,9 @@ def list_events_by_customerid(p_customer_id):
       
     #Render the sub group break line
     display_formatted_row([single_underline_style*85], "{: ^85}")   
-        
+#endregion
+
+#region Menu 3 : List Event Details       
 def list_event_details():
     """
     List the events, show all details except Customers who have purchased tickets."""
@@ -154,7 +183,7 @@ def list_event_details():
         
         #Set Value
         v_event_name = event_name
-        v_event_date = details['event_date']
+        v_event_date = details['event_date'].strftime("%d %b %Y")
         v_age_restriction = details['age_restriction']
         v_capacity = details['capacity']
         v_tickets_sold = details['tickets_sold']
@@ -167,16 +196,67 @@ def list_event_details():
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
+#endregion
 
+#region Menu 4 : Buy Tickets
 def buy_tickets():
     """
     Choose a customer, then a future event, the purchase can only proceed if they meet the minimum age requirement and tickets are available """
-    pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
 
-def add_new_customer():
+    response = ""
+    while response != "X":
+        
+        v_input_customer_id = input("\nPlease enter customer id: ")
+        v_pass_integer = validation("int", v_input_customer_id)
+
+        if(v_pass_integer != True):
+            print("\n*** Please enter integer value (0-9), Try again : \n")
+            response = "FaildValiation"
+        else:
+            v_found_customer = check_customer(v_input_customer_id)  
+            if(v_found_customer != True):
+                 print(f"\n*** Enter customer id [\"{v_input_customer_id}\"] is not found in the system,",
+                        "\n If you would like to try again, enter \"Y\", othewise enter \"N\" to back to main menu\n")
+                 response = input("\nPlease enter \"Y\" or \"N\" : ").upper() 
+            else:
+                list_event_details_by_customerid(v_input_customer_id) 
+                #loop for try buy with another count or exit by enter "X"
+                buy_ticket_by_selected_eventid_customerid(v_input_customer_id)
+
+       
+def check_customer(p_customer_id = "none"):
+    pass
+
+def list_event_details_by_customerid(p_customer_id = "none"):
+    pass
     """
-    Add a new customer to the customer list."""
-    pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
+    #1- Show listing for available event respective to the selected customer 
+        *(filter with 
+            1) future date event, 
+            2) old enough to attend
+         )
+    """
+   
+def buy_ticket_by_selected_eventid_customerid(p_event_id = "none", p_customer_id = "none"):
+    pass
+    """
+    "Please enter the Event ID to buy the ticket"
+    "Please enter the ticket count  "
+     
+    then check
+        3* selected event has available ticket for purchase ticket amount
+        if enough to buy 
+            - Update the ticket in the event dict
+                - show "you have bought [n] tickets successful, e-Ticket will be sent ticket to you email", route to main menu by show press enter to back to menu
+        else
+            show "[n] ticket is only available as of now", Please enter to buy others event or enter "X" to exit to main menu
+    """
+    response_buy_event_customer = ""
+    while response_buy_event_customer != "X":
+        pass
+#endregion
+
+#region Menu 5 : Future Events with tickets
 
 def list_future_available_events():
     """
@@ -222,20 +302,20 @@ def list_future_available_events():
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
+#endregion
 
-def disp_menu():
+#region Menu 6 : Add New Customer
+def add_new_customer():
     """
-    Displays the menu and current date.  No parameters required.
-    """
-    print("\n\n==== WELCOME TO SELWYN EVENT TICKETING SYSTEM ===")
-    print(" 1 - List Customers")
-    print(" 2 - List Customers and their Events")
-    print(" 3 - List Event Details")
-    print(" 4 - Buy Tickets")
-    print(" 5 - Future Events with tickets")
-    print(" 6 - Add New Customer")
-    print(" X - eXit (stops the program)")
-   
+    Add a new customer to the customer list."""
+    pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
+#endregion
+
+
+#region Validation
+def validation(p_validation_type = "none", p_validation_value = "none"):
+    pass
+#endregion
 # ------------ This is the main program ------------------------
 
 # Don't change the menu numbering or function names in this menu.
