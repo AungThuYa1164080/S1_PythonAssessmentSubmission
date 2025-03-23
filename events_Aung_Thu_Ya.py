@@ -61,20 +61,40 @@ def list_all_customers():
     """
     Lists customer details.
     This is an example of how to produce basic output."""
+    #TBD for formmating
     format_str = "{: <5} {: <15} {: <15} {: <14} {: <20}"            # Use the same format_str for column headers and rows to ensure consistent spacing. 
     display_formatted_row(["ID","First Name","Family Name","Birth Date","e-Mail"],format_str)     # Use the display_formatted_row() function to display the column headers with consistent spacing
     for customer in customers:
-        id = customer[0]
-        fname = customer[1]
-        famname = customer[2]
-        birthdate = customer[3].strftime("%d %b %Y")
-        email = customer[4]
-
-        display_formatted_row([id,fname,famname,birthdate,email],format_str)     # Use the display_formatted_row() function to display each row with consistent spacing
+            id = customer[0]
+            fname = customer[1]
+            famname = customer[2]
+            birthdate = customer[3].strftime("%d %b %Y")
+            email = customer[4]
+    
+            display_formatted_row([id,fname,famname,birthdate,email],format_str)     # Use the display_formatted_row() function to display each row with consistent spacing
     input("\nPress Enter to continue.")
 #endregion
 
 #region Menu 2 : List Customers and their Events
+def customer_info_detail_by_customerid(p_customer, customerid):
+    for customer in p_customer:
+        if(str(customer[0]) == customerid):
+            render_customer_detail(customer)
+            
+def render_customer_detail(p_customer) :
+        v_customer_id = p_customer[0]
+        v_first_name = p_customer[1]
+        v_family_name = p_customer[2]
+        v_birthdate = p_customer[3]
+        v_email = p_customer[4]
+        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
+
+        #Render Customer Info
+        display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFirst Name", f"{v_first_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFamily Name", f"{v_family_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nnEmail", f"{v_email}"], "{: <20} : {: <50}")  
 
 def list_customers_and_tickets():
     """
@@ -90,22 +110,12 @@ def list_customers_and_tickets():
     #Sorted for customer listing ordered by family name, then first name
     customers_sorted = sorted(customers, key=lambda x: (x[2], x[1]))
     
-    #Retrieve customer list    
+    #Retrieve customer list
     for customer in customers_sorted:
         v_customer_id = customer[0]
-        v_first_name = customer[1]
-        v_family_name = customer[2]
-        v_birthdate = customer[3]
-        v_email = customer[4]
-        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
-
-        #Render Customer Info
-        display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nFirst Name", f"{v_first_name}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nFamily Name", f"{v_family_name}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nnEmail", f"{v_email}"], "{: <20} : {: <50}") 
-   
+        #Render customer info deatils 
+        render_customer_detail(customer)
+        
         #Render the event list bought by customer
         list_events_by_customerid(v_customer_id)
     
@@ -131,7 +141,7 @@ def list_events_by_customerid(p_customer_id):
     for event_name, details in sorted_events:
         for customer_id, tickets_bought in details["customers"]:
             #Check customer bought the event
-            if customer_id == p_customer_id: 
+            if str(customer_id) == str(p_customer_id): 
                 #Set Value
                 v_event_name = event_name
                 v_event_date = details['event_date'].strftime("%d %b %Y")
@@ -180,7 +190,6 @@ def list_event_details():
     
     #Retrieve value from the list
     for event_name, details in sorted_events:
-        
         #Set Value
         v_event_name = event_name
         v_event_date = details['event_date'].strftime("%d %b %Y")
@@ -202,32 +211,46 @@ def list_event_details():
 def buy_tickets():
     """
     Choose a customer, then a future event, the purchase can only proceed if they meet the minimum age requirement and tickets are available """
+    #Define title and Formatted Style
+    title = "===== Buy Tickets ====="
 
-    response = ""
-    while response != "X":
+    #Render the title
+    display_formatted_row([title], "{: ^82}")  
+      
+    buy_ticket_response = ""
+    while buy_ticket_response != "X":
         
         v_input_customer_id = input("\nPlease enter customer id: ")
-        v_pass_integer = validation("int", v_input_customer_id)
+        v_pass_integer = validation("IsDigit", v_input_customer_id)
 
-        if(v_pass_integer != True):
-            print("\n*** Please enter integer value (0-9), Try again : \n")
-            response = "FaildValiation"
+        if(v_pass_integer == False):
+            print("\n[*] Please enter integer value (0-9), Try again...")
         else:
-            v_found_customer = check_customer(v_input_customer_id)  
-            if(v_found_customer != True):
-                 print(f"\n*** Enter customer id [\"{v_input_customer_id}\"] is not found in the system,",
-                        "\n If you would like to try again, enter \"Y\", othewise enter \"N\" to back to main menu\n")
-                 response = input("\nPlease enter \"Y\" or \"N\" : ").upper() 
+            v_found_customer = is_existing_customer(v_input_customer_id)  
+            if(v_found_customer == False):
+                 print(f"\n[*] Customer id [\"{v_input_customer_id}\"] is not found in the system,")
+                 buy_ticket_response = input("Please \"Enter\" to try again, Otherwise enter \"X\" for back to main menu :").upper() 
             else:
-                list_event_details_by_customerid(v_input_customer_id) 
-                #loop for try buy with another count or exit by enter "X"
-                buy_ticket_by_selected_eventid_customerid(v_input_customer_id)
+                while buy_ticket_response != "X": 
+                    
+                    #Render customer info
+                    print("\n=== Customer Info ===") 
+                    customer_info_detail_by_customerid(customers,v_input_customer_id)
+                      
+                    #Render the event list bought by customer
+                    print("\n=== List of events purchased by customer ===") 
+                    list_events_by_customerid(v_input_customer_id)
+                    
+                    #Render the future event which is eligible to buy for the customer 
+                    list_future_event_eligible_for_customer(v_input_customer_id) 
+                    
+                    #Buy ticket process
+                    buy_ticket_by_selected_eventid_customerid(v_input_customer_id)
+                    
+                    buy_ticket_response = input("\nPlease \"Enter\" to buy others event, , Otherwise enter \"X\" for back to main menu :").upper()
 
-       
-def check_customer(p_customer_id = "none"):
-    pass
-
-def list_event_details_by_customerid(p_customer_id = "none"):
+      
+def list_future_event_eligible_for_customer(p_customer_id = "none"):
     pass
     """
     #1- Show listing for available event respective to the selected customer 
@@ -239,21 +262,59 @@ def list_event_details_by_customerid(p_customer_id = "none"):
    
 def buy_ticket_by_selected_eventid_customerid(p_event_id = "none", p_customer_id = "none"):
     pass
-    """
-    "Please enter the Event ID to buy the ticket"
-    "Please enter the ticket count  "
-     
-    then check
-        3* selected event has available ticket for purchase ticket amount
-        if enough to buy 
-            - Update the ticket in the event dict
-                - show "you have bought [n] tickets successful, e-Ticket will be sent ticket to you email", route to main menu by show press enter to back to menu
-        else
-            show "[n] ticket is only available as of now", Please enter to buy others event or enter "X" to exit to main menu
-    """
-    response_buy_event_customer = ""
-    while response_buy_event_customer != "X":
-        pass
+    buy_ticket_selected_eventid_response = ""
+    while buy_ticket_selected_eventid_response != "done":
+        event_name = input("\nPlease enter the event name to buy the ticket :")
+        v_pass_blank = validation("IsBlank",event_name)
+        if(v_pass_blank == False):
+            print("\n[*] Event name can't be blank, Try again with some value...")
+        else:
+            if (is_existing_event(event_name) == False):
+                print("[*] Event name is not found, Please enter correct event name...")
+            else:
+                while (buy_ticket_selected_eventid_response != "done"):
+                    ticket_count_to_buy = input("\nPlease enter ticket count to buy :")
+                    v_pass_integer = validation("IsDigit", ticket_count_to_buy)
+                    if(v_pass_integer == False):
+                        print("\n[*] Please enter integer value (0-9), Try again...")
+                    else:
+                        if (check_available_ticket(event_name, ticket_count_to_buy) == True):
+                            update_ticket_by_event(event_name, ticket_count_to_buy)
+                            print(f"You have successfuly bought [{ticket_count_to_buy}] tickets, Your e-Ticket will be sent to your registered email.")
+                            buy_ticket_selected_eventid_response = "done"
+                        else:
+                            available_ticket_number = get_available_ticket(event_name)
+                            print(f"Sorry, [{available_ticket_number}] tickets are currently available. You may buy up to [{available_ticket_number}] tickets at most.")
+
+def update_ticket_by_event(event_name = "none", p_ticket_count_to_buy = 0) :
+    #TBD : Update process
+    pass
+
+def check_available_ticket(event_name = "none", p_ticket_count_to_buy = 0) -> bool:
+    available_ticket_number = get_available_ticket(event_name)
+    if (int(p_ticket_count_to_buy) > available_ticket_number):
+        return False
+    else:
+        return True
+    
+def get_available_ticket(event_name = "none") -> int:
+    #TD : Get available by event name
+    return 10
+  
+def is_existing_customer(p_customer_id = "none") -> bool:
+    for customer in customers:
+        if(p_customer_id in str(customer[0])):
+            return True
+    return False
+
+def is_existing_event(p_event_name = "none") -> bool:
+    #TBD
+    for event in events:
+        if(p_event_name in str(event[0])):
+            return True
+    
+    return False
+        
 #endregion
 
 #region Menu 5 : Future Events with tickets
@@ -309,13 +370,25 @@ def add_new_customer():
     """
     Add a new customer to the customer list."""
     pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
+    #TBD
 #endregion
-
 
 #region Validation
-def validation(p_validation_type = "none", p_validation_value = "none"):
-    pass
+def validation(p_validation_type = "none", p_validation_value = "none") -> bool:
+    match p_validation_type:
+        case "IsDigit":
+            if(p_validation_value.isdigit()):
+                return True
+            else:
+                return False
+        case "IsBlank":
+                    if(p_validation_value.strip()):
+                        return True
+                    else:
+                        return False
+            
 #endregion
+
 # ------------ This is the main program ------------------------
 
 # Don't change the menu numbering or function names in this menu.
