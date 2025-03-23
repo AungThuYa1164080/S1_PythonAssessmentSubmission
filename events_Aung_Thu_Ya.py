@@ -261,7 +261,7 @@ def buy_tickets():
                     list_future_event_eligible_for_customer(v_input_customer_id) 
                     
                     #Buy ticket process
-                    buy_ticket_by_selected_eventid_customerid(v_input_customer_id)
+                    buy_ticket_by_customerid(v_input_customer_id)
                     
                     buy_ticket_response = input("\nPlease \"Enter\" to buy others event, , Otherwise enter \"X\" for back to main menu :").upper()
 
@@ -277,10 +277,10 @@ def list_future_event_eligible_for_customer(p_customer_id = "none"):
          )
     """
    
-def buy_ticket_by_selected_eventid_customerid(p_event_id = "none", p_customer_id = "none"):
+def buy_ticket_by_customerid(p_customer_id = "none"):
     buy_ticket_selected_eventid_response = ""
     while buy_ticket_selected_eventid_response != "done":
-        event_name = input("\nPlease enter the event name to buy the ticket :")
+        event_name = input("\nPlease enter the event name to buy the ticket :").strip()
         v_pass_blank = validation("IsBlank",event_name)
         if(v_pass_blank == False):
             print("\n[*] Event name can't be blank, Try again with some value...")
@@ -297,7 +297,7 @@ def buy_ticket_by_selected_eventid_customerid(p_event_id = "none", p_customer_id
                         if (check_available_ticket(event_name, ticket_count_to_buy) == True):
                             update_ticket_by_event(event_name, p_customer_id, ticket_count_to_buy)
                             print(f"You have successfuly bought [{ticket_count_to_buy}] tickets, Your e-Ticket will be sent to your registered email.")
-                            buy_ticket_selected_eventid_response = "done"4
+                            buy_ticket_selected_eventid_response = "done"
                         else:
                             available_ticket_number = get_available_ticket(event_name)
                             print(f"Sorry, [{available_ticket_number}] tickets are currently available. You may buy up to [{available_ticket_number}] tickets at most.")
@@ -309,9 +309,9 @@ def update_ticket_by_event(event_name = "none", p_customer_id = "none", p_ticket
         # Check if customer already exists and update their ticket count
         is_existing_customer = False
         for customer in event["customers"]:
-            if customer[0] == p_customer_id: 
+            if str(customer[0]) == str(p_customer_id): 
                 customer_index = event["customers"].index(customer) 
-                event["customers"][customer_index] = (customer[0], customer[1] + p_ticket_count_to_buy)
+                event["customers"][customer_index] = (customer[0], customer[1] + int(p_ticket_count_to_buy))
                 is_existing_customer = True
                 break  # Out from the loop as found
         
