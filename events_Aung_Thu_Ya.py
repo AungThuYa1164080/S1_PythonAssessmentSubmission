@@ -321,8 +321,12 @@ def update_ticket_by_event(event_name = "none", p_customer_id = "none", p_ticket
 
         # Update total tickets sold to the event 
         event["tickets_sold"] += int(p_ticket_count_to_buy)
+        
+        print("\n=== List of events purchased by customer ===") 
+        list_events_by_customerid(p_customer_id)
 
 def check_available_ticket(event_name = "none", p_ticket_count_to_buy = 0) -> bool:
+    #TBD - testing for available ticket
     available_ticket_number = get_available_ticket(event_name)
     if (int(p_ticket_count_to_buy) > available_ticket_number):
         return False
