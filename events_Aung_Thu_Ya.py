@@ -13,6 +13,7 @@ from set_data import customers,events,unique_id,display_formatted_row
 #endregion
 
 #region Global Variable
+
 #Student and Assessment info
 v_student_id = "1164080"
 v_student_name = "AUNG THU YA"
@@ -25,11 +26,13 @@ v_today = date.today()
 #Start Layout formats
 double_underline_style = "="
 single_underline_style = "-"
+
 #End Layout format
 
 #endregion
 
 #region Student Info
+
 def disp_student_info():
     """
     Displays the student info and current date.
@@ -39,9 +42,11 @@ def disp_student_info():
     display_formatted_row(["\nStudent Name", f"{v_student_name}"], "{: <20} : {: <80}") 
     display_formatted_row(["\nDate Time", f"{v_current_datetime}"], "{: <20} : {: <80}") 
     display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")           
+
 #endregion
 
 #region Menu List
+
 def disp_menu():
     """
     Displays the menu and current date.  No parameters required.
@@ -54,9 +59,11 @@ def disp_menu():
     print(" 5 - Future Events with tickets")
     print(" 6 - Add New Customer")
     print(" X - eXit (stops the program)")
+
 #endregion   
    
-#region Menu 1 : List Customers    
+#region Menu 1 : List Customers   
+ 
 def list_all_customers():
     """
     Lists customer details.
@@ -64,15 +71,15 @@ def list_all_customers():
 
     #Define title and Formatted Style
     title = "===== Customer Listing ====="
-    display_customer_formatted_column_width = "{: <5} {: <15} {: <15} {: ^14} {: <20}"
+    display_customer_formatted_column_width = "{: <5} {: <15} {: <15} {: ^14} {: <25}"
 
     #Render the title
     display_formatted_row([title], "{: ^82}")    
     
     #Render the header
-    display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*20 ], display_customer_formatted_column_width) 
+    display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*25 ], display_customer_formatted_column_width) 
     display_formatted_row(["ID"             , "First Name"        , "Family Name"             , "Birth Date"              , "Email"            ], display_customer_formatted_column_width)
-    display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*20 ], display_customer_formatted_column_width) 
+    display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*25 ], display_customer_formatted_column_width) 
 
     #Sorted by cusotmer id
     sorted_customers = sorted(customers, key=lambda x: x[0])
@@ -86,10 +93,11 @@ def list_all_customers():
             email = customer[4]
     
             display_formatted_row([id,fname,famname,birthdate,email], display_customer_formatted_column_width)     # Use the display_formatted_row() function to display each row with consistent spacing
-    input("\nPress Enter to continue.")
+
 #endregion
 
 #region Menu 2 : List Customers and their Events
+
 def list_customers_and_tickets():
     """
     Lists Customer details (including birth date), and the events they have purchased tickets to attend."""
@@ -112,79 +120,14 @@ def list_customers_and_tickets():
         render_customer_detail(customer)
         
         #Render the event list bought by customer
-        list_events_by_customerid(v_customer_id)
+        list_events_by_customerid("all", v_customer_id)
     
     input("\nPress Enter to return to the (Menu) list ...")     
-    #end   
-    
-def list_events_by_customerid(p_customer_id):
-    #Variables
-    total_ticket_bought = 0
-    
-    #Define Formatted Style
-    display_customer_event_formatted_column_width = "{: <30} {: ^15} {: >14} {: >8} {: >14}"
-        
-    #Render the header
-    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
-    display_formatted_row(["Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Bought"           ], display_customer_event_formatted_column_width)
-    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
 
-    #Sorted by Event Name
-    sorted_events = sorted(events.items(), key=lambda x: x[0])
-   
-    #Get the list of event bought by customer
-    for event_name, details in sorted_events:
-        for customer_id, tickets_bought in details["customers"]:
-            #Check customer bought the event
-            if str(customer_id) == str(p_customer_id): 
-                #Set Value
-                v_event_name = event_name
-                v_event_date = details['event_date'].strftime("%d %b %Y")
-                v_age_restriction = details['age_restriction']
-                v_capacity = details['capacity']
-                v_tickets_bought = tickets_bought
-                
-                #Get the total ticket 
-                total_ticket_bought = total_ticket_bought + v_tickets_bought
-                        
-                #Render the list of event
-                display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
-    
-    #Render the sub group break line
-    display_formatted_row([single_underline_style*85], "{: ^85}")   
-       
-    #Check total ticket value is 0 then show No ticket bought else show the total ticket value bought by customer                
-    if (total_ticket_bought>0):
-        display_formatted_row([f"Total tickets bought : {total_ticket_bought}" ], "{:>85}")
-    else:
-        display_formatted_row(["*** No ticket bought ***"], "{: ^86}")       
-      
-    #Render the sub group break line
-    display_formatted_row([single_underline_style*85], "{: ^85}")   
-    
-def customer_info_detail_by_customerid(p_customer, customerid):
-    for customer in p_customer:
-        if(str(customer[0]) == customerid):
-            render_customer_detail(customer)
-            
-def render_customer_detail(p_customer) :
-        v_customer_id = p_customer[0]
-        v_first_name = p_customer[1]
-        v_family_name = p_customer[2]
-        v_birthdate = p_customer[3]
-        v_email = p_customer[4]
-        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
-
-        #Render Customer Info
-        display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nFirst Name", f"{v_first_name}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nFamily Name", f"{v_family_name}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
-        display_formatted_row(["\nEmail", f"{v_email}"], "{: <20} : {: <50}")  
-    
 #endregion
 
 #region Menu 3 : List Event Details       
+
 def list_event_details():
     """
     List the events, show all details except Customers who have purchased tickets."""
@@ -221,17 +164,23 @@ def list_event_details():
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
+
 #endregion
 
 #region Menu 4 : Buy Tickets
+
 def buy_tickets():
     """
     Choose a customer, then a future event, the purchase can only proceed if they meet the minimum age requirement and tickets are available """
     #Define title and Formatted Style
     title = "===== Buy Tickets ====="
-
+    future_eligible_title = "===== List of upcoming events and eligibility to purchase ====="
+    
     #Render the title
     display_formatted_row([title], "{: ^82}")  
+    
+    #Show list of customer
+    list_all_customers()
       
     buy_ticket_response = ""
     while buy_ticket_response != "X":
@@ -253,30 +202,16 @@ def buy_tickets():
                     print("\n=== Customer Info ===") 
                     customer_info_detail_by_customerid(customers,v_input_customer_id)
                       
-                    #Render the event list bought by customer
-                    print("\n=== List of events purchased by customer ===") 
-                    list_events_by_customerid(v_input_customer_id)
-                    
                     #Render the future event which is eligible to buy for the customer 
-                    list_future_event_eligible_for_customer(v_input_customer_id) 
+                    #Render the title
+                    display_formatted_row([future_eligible_title], "{: ^82}")                      
+                    list_events_by_customerid("future_eligible",v_input_customer_id)
                     
                     #Buy ticket process
                     buy_ticket_by_customerid(v_input_customer_id)
                     
                     buy_ticket_response = input("\nPlease \"Enter\" to buy others event, , Otherwise enter \"X\" for back to main menu :").upper()
 
-      
-def list_future_event_eligible_for_customer(p_customer_id = "none"):
-    pass
-    #TBD
-    """
-    #1- Show listing for available event respective to the selected customer 
-        *(filter with 
-            1) future date event, 
-            2) old enough to attend
-         )
-    """
-   
 def buy_ticket_by_customerid(p_customer_id = "none"):
     buy_ticket_selected_eventid_response = ""
     while buy_ticket_selected_eventid_response != "done":
@@ -296,7 +231,7 @@ def buy_ticket_by_customerid(p_customer_id = "none"):
                     else:
                         if (check_available_ticket(event_name, ticket_count_to_buy) == True):
                             update_ticket_by_event(event_name, p_customer_id, ticket_count_to_buy)
-                            print(f"You have successfuly bought [{ticket_count_to_buy}] tickets, Your e-Ticket will be sent to your registered email.")
+                            print(f"You have successfuly bought [{ticket_count_to_buy}] tickets for event [{event_name}], Your e-Ticket will be sent to your registered email.")
                             buy_ticket_selected_eventid_response = "done"
                         else:
                             available_ticket_number = get_available_ticket(event_name)
@@ -323,38 +258,7 @@ def update_ticket_by_event(event_name = "none", p_customer_id = "none", p_ticket
         event["tickets_sold"] += int(p_ticket_count_to_buy)
         
         print("\n=== List of events purchased by customer ===") 
-        list_events_by_customerid(p_customer_id)
-
-def check_available_ticket(event_name = "none", p_ticket_count_to_buy = 0) -> bool:
-    #TBD - testing for available ticket
-    available_ticket_number = get_available_ticket(event_name)
-    if (int(p_ticket_count_to_buy) > available_ticket_number):
-        return False
-    else:
-        return True
-    
-def get_available_ticket(p_event_name = "none") -> int:
-    #Get available by event name
-    available_ticket = 0
-    for event_name, event_details in events.items():
-        if(str(p_event_name).upper() == str(event_name).upper()):
-            available_ticket =  event_details["capacity"] - event_details["tickets_sold"]
-    return available_ticket
-
-def is_existing_customer(p_customer_id = "none") -> bool:
-    for customer in customers:
-        if(p_customer_id in str(customer[0])):
-            return True
-    return False
-
-def is_existing_future_event(p_event_name = "none") -> bool:
-    #Check event are existing event and event date is future date
-    for event_name, event_details in events.items():
-        if(str(p_event_name).upper() == str(event_name).upper()):
-            if(date.today() <= event_details["event_date"]):
-                return True
-     
-    return False
+        list_events_by_customerid("all", p_customer_id)
         
 #endregion
 
@@ -404,14 +308,155 @@ def list_future_available_events():
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
+
 #endregion
 
 #region Menu 6 : Add New Customer
+
 def add_new_customer():
     """
     Add a new customer to the customer list."""
     pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
     #TBD
+
+#endregion
+
+#region Custom Method
+
+#region Customer
+def is_existing_customer(p_customer_id = "none") -> bool:
+    for customer in customers:
+        if(p_customer_id in str(customer[0])):
+            return True
+    return False
+    
+def customer_info_detail_by_customerid(p_customer, p_customer_id):
+    for customer in p_customer:
+        if(str(customer[0]) == p_customer_id):
+            render_customer_detail(customer)
+            
+def render_customer_detail(p_customer) :
+        v_customer_id = p_customer[0]
+        v_first_name = p_customer[1]
+        v_family_name = p_customer[2]
+        v_birthdate = p_customer[3]
+        v_email = p_customer[4]
+        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
+
+        #Render Customer Info
+        display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFirst Name", f"{v_first_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nFamily Name", f"{v_family_name}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
+        display_formatted_row(["\nEmail", f"{v_email}"], "{: <20} : {: <50}")
+
+    
+def list_events_by_customerid(list_type, p_customer_id):
+    """
+    for list_type = "future_eligible"
+    #1- Show listing for available event respective to the selected customer 
+        *(filter with 
+            1) event date is future date, 
+            2) customer old enough to attend
+         )
+    else list_type for all
+    """
+    
+    #Variables
+    total_ticket_bought = 0
+    v_future_eligible = False
+    
+    #Define Formatted Style
+    display_customer_event_formatted_column_width = "{: <30} {: ^15} {: >14} {: >8} {: >14}"
+        
+    #Render the header
+    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+    display_formatted_row(["Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Bought"           ], display_customer_event_formatted_column_width)
+    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+
+    #Sorted by Event Name
+    sorted_events = sorted(events.items(), key=lambda x: x[0])
+   
+    #Get the list of event bought by customer
+    for event_name, details in sorted_events:
+        for customer_id, tickets_bought in details["customers"]:
+            #Check customer bought the event
+            if str(customer_id) == str(p_customer_id): 
+                
+                #Set Value
+                v_event_name = event_name
+                v_event_date = details['event_date'].strftime("%d %b %Y")
+                v_age_restriction = details['age_restriction']
+                v_capacity = details['capacity']
+                v_tickets_bought = tickets_bought
+                
+                #Get the total ticket 
+                total_ticket_bought = total_ticket_bought + v_tickets_bought
+                        
+                #Render the list of event
+                if (list_type == "future_eligible"):
+                    v_pass_age_restriction = is_pass_age_restriction(v_age_restriction, customer_id)
+                    v_future_event_date = is_existing_future_event(v_event_name)
+                    
+                    if (v_pass_age_restriction and v_future_event_date):
+                        v_future_eligible = True
+                        display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
+                else:
+                    display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
+    
+    #Render the sub group break line
+    display_formatted_row([single_underline_style*85], "{: ^85}")   
+       
+    #Check total ticket value is 0 then show No ticket bought else show the total ticket value bought by customer                
+    if (total_ticket_bought>0):
+        display_formatted_row([f"Total tickets bought : {total_ticket_bought}" ], "{:>85}")
+    else:
+        if(v_future_eligible):
+            display_formatted_row(["*** No events are avalaible for you now, Please check with our event customer service for further details. ***"], "{: ^86}")  
+        else:
+            display_formatted_row(["*** No ticket bought ***"], "{: ^86}")              
+                 
+      
+    #Render the sub group break line
+    display_formatted_row([single_underline_style*85], "{: ^85}")   
+    
+def is_pass_age_restriction(p_event_age_restriction, p_customer_id) -> bool:
+    for customer in customers:
+        if(str(customer[0]) == str(p_customer_id)):
+            customer_birthdate = customer[3]
+            age_restriction_date = date(v_today.year - p_event_age_restriction, v_today.month, v_today.day)
+            return (age_restriction_date > customer_birthdate)
+    return False 
+       
+#endregion             
+
+#region Event
+def check_available_ticket(event_name = "none", p_ticket_count_to_buy = 0) -> bool:
+    #TBD - testing for available ticket
+    available_ticket_number = get_available_ticket(event_name)
+    if (int(p_ticket_count_to_buy) > available_ticket_number):
+        return False
+    else:
+        return True
+    
+def get_available_ticket(p_event_name = "none") -> int:
+    #Get available by event name
+    available_ticket = 0
+    for event_name, event_details in events.items():
+        if(str(p_event_name).upper() == str(event_name).upper()):
+            available_ticket =  event_details["capacity"] - event_details["tickets_sold"]
+    return available_ticket
+
+
+def is_existing_future_event(p_event_name = "none") -> bool:
+    #Check event are existing event and event date is future date
+    for event_name, event_details in events.items():
+        if(str(p_event_name).upper() == str(event_name).upper()):
+            if(date.today() <= event_details["event_date"]):
+                return True
+     
+    return False  
+   
 #endregion
 
 #region Validation
@@ -430,6 +475,9 @@ def validation(p_validation_type = "none", p_validation_value = "none") -> bool:
             
 #endregion
 
+#endregion
+
+
 # ------------ This is the main program ------------------------
 
 # Don't change the menu numbering or function names in this menu.
@@ -446,6 +494,7 @@ while response != "X":
        
     if response == "1":
         list_all_customers()
+        input("\nPress Enter to continue.")
     elif response == "2":
         list_customers_and_tickets()
     elif response == "3":
