@@ -215,32 +215,36 @@ def buy_tickets():
 def buy_ticket_by_customerid(p_customer_id = "none"):
     buy_ticket_selected_eventid_response = ""
     while buy_ticket_selected_eventid_response != "done":
-        event_name = input("\nPlease enter the event name to buy the ticket :").strip()
-        v_pass_blank = validation("IsBlank",event_name)
+        event_id = input("\nPlease enter the \"Event ID\" to buy the ticket :").strip()
+        v_pass_blank = validation("IsBlank",event_id)
+        v_pass_int = validation("IsDigit",event_id)        
         if(v_pass_blank == False):
-            print("\n[!] Event name can't be blank, Try again with some value...")
+            print("\n[*] Event name can't be blank, Try again with some value...")
         else:
-            if (is_existing_future_event(event_name) == False):
-                print(f"[!] The event name [{event_name}] was not found, or the event date has passed. Please try with another event name....")
-                buy_ticket_selected_eventid_response = "done"
+            if(v_pass_int == False):
+                print("\n[*] Please enter integer value (0-9), Try again...")
             else:
-                while (buy_ticket_selected_eventid_response != "done"):
-                    ticket_count_to_buy = input("\nPlease enter ticket count to buy :")
-                    v_pass_integer = validation("IsDigit", ticket_count_to_buy)
-                    if(v_pass_integer == False):
-                        print("\n[*] Please enter integer value (0-9), Try again...")
-                    else:
-                        if (check_available_ticket(event_name, ticket_count_to_buy) == True):
-                            update_ticket_by_event(event_name, p_customer_id, ticket_count_to_buy)
-                            print(f"[^_^] You have successfuly purchased [{ticket_count_to_buy}] tickets for event [{event_name}], Your e-Ticket will be sent to your registered email.")
-                            buy_ticket_selected_eventid_response = "done"
+                event_name = get_eventname_by_selected_eventid(event_id, p_customer_id)
+                if (event_name == "Notfound"):
+                    print(f"\n[!] Please select event id from the \"Upcoming events and eligibility to purchase list\" at above.")
+                else:
+                    while (buy_ticket_selected_eventid_response != "done"):
+                        ticket_count_to_buy = input("\nPlease enter ticket count to buy :")
+                        v_pass_integer = validation("IsDigit", ticket_count_to_buy)
+                        if(v_pass_integer == False):
+                            print("\n[*] Please enter integer value (0-9), Try again...")
                         else:
-                            available_ticket_number = get_available_ticket(event_name)
-                            if (available_ticket_number == 0):
-                                print(f"[!] Sorry, There are no tickets available at the moment. Kindly consider purchasing tickets for another event.")  
+                            if (check_available_ticket(event_name, ticket_count_to_buy) == True):
+                                update_ticket_by_event(event_name, p_customer_id, ticket_count_to_buy)
+                                print(f"[^_^] You have successfuly purchased [{ticket_count_to_buy}] tickets for event [{event_name}], Your e-Ticket will be sent to your registered email.")
                                 buy_ticket_selected_eventid_response = "done"
                             else:
-                                print(f"[!] Sorry, [{available_ticket_number}] tickets are currently available. You may buy up to [{available_ticket_number}] tickets at most.")
+                                available_ticket_number = get_available_ticket(event_name)
+                                if (available_ticket_number == 0):
+                                    print(f"[!] Sorry, There are no tickets available at the moment. Kindly consider purchasing tickets for another event.")  
+                                    buy_ticket_selected_eventid_response = "done"
+                                else:
+                                    print(f"[!] Sorry, [{available_ticket_number}] tickets are currently available. You may buy up to [{available_ticket_number}] tickets at most.")
 
 def update_ticket_by_event(event_name = "none", p_customer_id = "none", p_ticket_count_to_buy = 0) :
     #Update process
@@ -375,14 +379,22 @@ def list_events_by_customerid(list_type, p_customer_id):
     display_customer_event_formatted_column_width = "{: <30} {: ^15} {: >14} {: >8} {: >14}"
         
     #Render the header
-    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
-    display_formatted_row(["Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Bought"           ], display_customer_event_formatted_column_width)
-    display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
-
+    if (list_type == "future_eligible"):    
+        #Define Formatted Style
+        display_customer_event_formatted_column_width = "{: <8} {: <30} {: ^15} {: >14} {: >8} {: >14} {: >20}"        
+        display_formatted_row([double_underline_style*8, double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14, double_underline_style*20 ], display_customer_event_formatted_column_width) 
+        display_formatted_row(["Event ID"              , "Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Sold"            , "Ticket Available Now"    ], display_customer_event_formatted_column_width)
+        display_formatted_row([double_underline_style*8, double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14, double_underline_style*20 ], display_customer_event_formatted_column_width) 
+    else:
+        display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+        display_formatted_row(["Event Name"             , "Event Date"             , "Age Restriction"        ,  "Capacity"              , "Ticket Bought"           ], display_customer_event_formatted_column_width)
+        display_formatted_row([double_underline_style*30, double_underline_style*14, double_underline_style*15,  double_underline_style*8, double_underline_style*14 ], display_customer_event_formatted_column_width) 
+                
     #Sorted by Event Name
     sorted_events = sorted(events.items(), key=lambda x: x[0])
    
     #Get the list of event bought by customer
+    event_id = 0
     for event_name, details in sorted_events:
         for customer_id, tickets_bought in details["customers"]:
             #Check customer bought the event
@@ -399,32 +411,35 @@ def list_events_by_customerid(list_type, p_customer_id):
                 if (list_type == "future_eligible"):
                     v_pass_age_restriction = is_pass_age_restriction(v_age_restriction, customer_id)
                     v_future_event_date = is_existing_future_event(v_event_name)
-                    
+
                     if (v_pass_age_restriction and v_future_event_date):
                         v_future_eligible = True
-                        #Get the total ticket 
-                        total_ticket_bought = total_ticket_bought + v_tickets_bought
-                        display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
+                        #Render the list of event which are future and eligible for selected customer
+                        event_id = event_id + 1                          
+                        display_formatted_row([event_id, v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought, (v_capacity - v_tickets_bought) ], display_customer_event_formatted_column_width)
                 else:
+                    #Render the list of event purchased by customer
                     #Get the total ticket 
                     total_ticket_bought = total_ticket_bought + v_tickets_bought                    
                     display_formatted_row([v_event_name, v_event_date, v_age_restriction, v_capacity, v_tickets_bought], display_customer_event_formatted_column_width)
     
-    #Render the sub group break line
-    display_formatted_row([single_underline_style*85], "{: ^85}")   
+
        
     #Check total ticket value is 0 then show No ticket bought else show the total ticket value bought by customer                
-    if (total_ticket_bought>0):
-        display_formatted_row([f"Total tickets bought : {total_ticket_bought}" ], "{:>85}")
+    if(v_future_eligible):
+        if (event_id == 0):
+            display_formatted_row(["\n[!] Currently, no events are available for you. Please contact our event customer service for further assistance."], "{: ^86}")  
     else:
-        if(v_future_eligible):
-            display_formatted_row(["*** No events are avalaible for you now, Please check with our event customer service for further details. ***"], "{: ^86}")  
+        #Render the sub group break line
+        display_formatted_row([single_underline_style*85], "{: ^85}")           
+        
+        if (total_ticket_bought>0):
+            display_formatted_row([f"Total tickets bought : {total_ticket_bought}" ], "{:>85}")
         else:
-            display_formatted_row(["*** No ticket bought ***"], "{: ^86}")              
-                 
-      
-    #Render the sub group break line
-    display_formatted_row([single_underline_style*85], "{: ^85}")   
+            display_formatted_row(["*** No ticket bought ***"], "{: ^86}")                 
+
+        #Render the sub group break line
+        display_formatted_row([single_underline_style*85], "{: ^85}")   
     
 def is_pass_age_restriction(p_event_age_restriction, p_customer_id) -> bool:
     for customer in customers:
@@ -433,7 +448,44 @@ def is_pass_age_restriction(p_event_age_restriction, p_customer_id) -> bool:
             age_restriction_date = date(v_today.year - p_event_age_restriction, v_today.month, v_today.day)
             return (age_restriction_date > customer_birthdate)
     return False 
-       
+
+def get_eventname_by_selected_eventid(p_selected_eventId, p_customer_id):
+    future_eligible_events = []
+    #Sorted by Event Name
+    sorted_events = sorted(events.items(), key=lambda x: x[0])
+   
+    #Get the list of eligible and future event list by customer
+    event_id = 0
+    for event_name, details in sorted_events:
+        for customer_id, tickets_bought in details["customers"]:
+            #Check customer bought the event
+            if str(customer_id) == str(p_customer_id): 
+                #Set Value
+                v_event_name = event_name
+                v_age_restriction = details['age_restriction']
+
+                #Get the result
+                v_pass_age_restriction = is_pass_age_restriction(v_age_restriction, customer_id)
+                v_future_event_date = is_existing_future_event(v_event_name)
+                
+                #Check
+                if (v_pass_age_restriction and v_future_event_date):
+                    future_eligible_events.append({
+                        "event_id": event_id+1,
+                        "event_name": event_name
+                    })
+
+    #get the selected event name from the list
+    event_name = get_event_name_by_id(p_selected_eventId, future_eligible_events)
+
+    return event_name  
+
+def get_event_name_by_id(event_id, events):
+    for event in events:
+        if str(event['event_id']) == str(event_id):
+            return event['event_name']
+    return "Notfound"
+                        
 #endregion             
 
 #region Event
