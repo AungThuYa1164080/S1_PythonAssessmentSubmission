@@ -198,29 +198,33 @@ def buy_tickets():
     while buy_ticket_response != "X":
         
         v_input_customer_id = input("\nPlease enter customer id: ")
+        v_pass_blank = validation("IsBlank", v_input_customer_id)        
         v_pass_integer = validation("IsDigit", v_input_customer_id)
 
-        if(v_pass_integer == False):
-            print("\n[*] Please enter integer value (0-9), Try again...")
+        if(v_pass_blank == False):
+            print("\n[*] Customer id can't be blank, Please enter a value")
         else:
-            v_found_customer = is_existing_customer(v_input_customer_id)  
-            if(v_found_customer == False):
-                 print(f"\n[*] Customer id [\"{v_input_customer_id}\"] is not found in the system,")
-                 buy_ticket_response = input("[!] Please \"Enter\" to try again, Otherwise enter \"X\" for back to main menu :").upper() 
+            if(v_pass_integer == False):
+                print("\n[*] Please enter integer value (0-9), Try again...")
             else:
-                while buy_ticket_response != "X": 
-                    
-                    #Render customer info
-                    print("\n=== Customer Info ===") 
-                    customer_info_detail_by_customerid(customers,v_input_customer_id)
-                      
-                    #Render the future event which is eligible to buy for the customer 
-                    #Render the title
-                    display_formatted_row([future_eligible_title], "{: <82}")                      
-                    #list_events_by_customerid("future_eligible",v_input_customer_id)
-                    display_event_list_future_eligible(v_input_customer_id)
-                    
-                    buy_ticket_response = input("\n[!] Please \"Enter\" to buy others event, , Otherwise enter \"X\" for back to main menu :").upper()                    
+                v_found_customer = is_existing_customer(v_input_customer_id)  
+                if(v_found_customer == False):
+                    print(f"\n[*] Customer id \"{v_input_customer_id}\" is not found in the system,")
+                    buy_ticket_response = input("[!] Please \"Enter\" to try again, Otherwise enter \"X\" for back to main menu :").upper() 
+                else:
+                    while buy_ticket_response != "X": 
+                        
+                        #Render customer info
+                        print("\n=== Customer Info ===") 
+                        customer_info_detail_by_customerid(customers,v_input_customer_id)
+                        
+                        #Render the future event which is eligible to buy for the customer 
+                        #Render the title
+                        display_formatted_row([future_eligible_title], "{: <82}")                      
+                        #list_events_by_customerid("future_eligible",v_input_customer_id)
+                        display_event_list_future_eligible(v_input_customer_id)
+                        
+                        buy_ticket_response = input("\n[!] Please \"Enter\" to buy others event, , Otherwise enter \"X\" for back to main menu :").upper()                    
 
 def buy_ticket_by_customerid(p_customer_id = "none"):
     buy_ticket_selected_eventid_response = ""
@@ -434,7 +438,7 @@ def add_new_customer_to_list(p_input_customer):
 
 def is_existing_customer(p_customer_id = "none") -> bool:
     for customer in customers:
-        if(p_customer_id in str(customer[0])):
+        if(str(p_customer_id).strip() == str(customer[0])):
             return True
     return False
     

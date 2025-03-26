@@ -23,7 +23,7 @@ events = {
             "tickets_sold":18,
             "customers":[(923,2),(810,4),(924,3),(786,9)]},
     "Selwyn Sounds 25": {"age_restriction":18,
-            "event_date": date(2025,5,1),
+            "event_date": date(2025,3,1),
             "capacity":1000,
             "tickets_sold":5,
             "customers":[(816,5)]},
