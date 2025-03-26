@@ -9,7 +9,9 @@ from datetime import datetime,timedelta     # datetime module is required for wo
 from datetime import date
 
 # Make the variables and function in set_data.py available in this code (without needing 'set_data.' prefix)
-from set_data import customers,events,unique_id,display_formatted_row   
+from set_data import customers,events,unique_id,display_formatted_row  
+from collections import namedtuple 
+import re
 #endregion
 
 #region Global Variable
@@ -20,15 +22,22 @@ v_student_name = "AUNG THU YA"
 v_assement_name = "=== COMP 636: Python Assessment ==="
 
 #Date time value
-v_current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+v_date_format = "%d-%b-%Y"
+v_date_display_format = "%d %b %Y"
+v_datetime_display_format = "%d %b %Y %H:%M:%S"
+
+v_current_datetime = datetime.now().strftime(v_datetime_display_format)
 v_today = date.today()
+date.today()
 
 #Start Layout formats
 double_underline_style = "="
 single_underline_style = "-"
-
 #End Layout format
 
+# Define an immutable constant using namedtuple
+Constants = namedtuple('Constants', ['AGE_LIMIT'])
+CONSTANTS = Constants(AGE_LIMIT=110)
 #endregion
 
 #region Student Info
@@ -38,9 +47,9 @@ def disp_student_info():
     Displays the student info and current date.
     """
     display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")      
-    display_formatted_row(["\nStudent ID", f"{v_student_id}"], "{: <20} : {: <80}")
-    display_formatted_row(["\nStudent Name", f"{v_student_name}"], "{: <20} : {: <80}") 
-    display_formatted_row(["\nDate Time", f"{v_current_datetime}"], "{: <20} : {: <80}") 
+    display_formatted_row([f"\nStudent ID", f"{v_student_id}"], "{: >20} : {: <80}")
+    display_formatted_row(["\nStudent Name", f"{v_student_name}"], "{: >20} : {: <80}") 
+    display_formatted_row(["\nDate Time", f"{v_current_datetime}"], "{: >20} : {: <80}") 
     display_formatted_row([f"\n{v_assement_name}"], "{: ^100}")           
 
 #endregion
@@ -89,11 +98,14 @@ def list_all_customers():
             id = customer[0]
             fname = customer[1]
             famname = customer[2]
-            birthdate = customer[3].strftime("%d %b %Y")
+            birthdate = customer[3].strftime(v_date_display_format) 
             email = customer[4]
     
             display_formatted_row([id,fname,famname,birthdate,email], display_customer_formatted_column_width)     # Use the display_formatted_row() function to display each row with consistent spacing
 
+    #Render the footer
+    display_formatted_row([single_underline_style*77], "{: <77}")     
+    
 #endregion
 
 #region Menu 2 : List Customers and their Events
@@ -151,7 +163,7 @@ def list_event_details():
     for event_name, details in sorted_events:
         #Set Value
         v_event_name = event_name
-        v_event_date = details['event_date'].strftime("%d %b %Y")
+        v_event_date = details['event_date'].strftime(v_date_display_format)
         v_age_restriction = details['age_restriction']
         v_capacity = details['capacity']
         v_tickets_sold = details['tickets_sold']
@@ -160,7 +172,7 @@ def list_event_details():
         display_formatted_row([v_event_name, v_age_restriction, v_event_date, v_capacity, v_tickets_sold], display_event_formatted_column_width)
     
     #Render the footer
-    display_formatted_row([single_underline_style*82], "{: ^82}")     
+    display_formatted_row([single_underline_style*83], "{: ^83}")     
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
@@ -217,12 +229,12 @@ def buy_ticket_by_customerid(p_customer_id = "none"):
         v_pass_blank = validation("IsBlank",v_event_id)
         v_pass_int = validation("IsDigit",v_event_id)        
         if(v_pass_blank == False):
-            print("\n[*] Event name can't be blank, Try again with some value...")
+            print("\n[*] \"Event ID\" can't be blank, Please enter a value")
         else:
             if(v_pass_int == False):
                 print("\n[*] Please enter integer value (0-9), Try again...")
             else:
-                #event_name = get_eventname_by_selected_eventid(event_id, p_customer_id)
+                #event_name = get_eventname_by_selected_eventid(event_id, p_customer_id) #Not in use
                 event_future_eligible = get_event_future_eligible_list(p_customer_id)
                 event_name = get_event_name_by_id(v_event_id, event_future_eligible)
                 
@@ -314,7 +326,7 @@ def list_future_available_events():
         
         #Set Value
         v_event_name = event_name
-        v_event_date = details['event_date']
+        v_event_date = details['event_date'].strftime(v_date_display_format)
         v_age_restriction = details['age_restriction']
         v_capacity = details['capacity']
         v_tickets_sold = details['tickets_sold']
@@ -327,7 +339,7 @@ def list_future_available_events():
         print(f"\n[!] Sorry, There are no event available at the moment.")  
     else: 
         #Render the footer
-        display_formatted_row([single_underline_style*82], "{: ^108}")     
+        display_formatted_row([single_underline_style*110], "{: <110}")     
     
     input("\nPress Enter to return to the (Menu) list ...")     
     #end   
@@ -339,14 +351,87 @@ def list_future_available_events():
 def add_new_customer():
     """
     Add a new customer to the customer list."""
-    pass  # REMOVE this line once you have some function code (a function must have one line of code, so this temporary line keeps Python happy so you can run the code)
-    #TBD
+    #local variable
+    v_input_customer = {}
+    
+    #Define title and Formatted Style
+    title = "===== New Cusotmer Entry Form ====="
 
+    #Render the title
+    display_formatted_row([title], "{: ^80}")    
+    
+    response = ""
+    while response != "X":    
+        while True:
+
+            v_first_name = input(f"{'First Name' : <30} : ")            
+            if(not validation("IsBlank", v_first_name)):
+                print("\n[*] First Name can't be blank, Please enter a value.") 
+            else:
+                break
+
+        while True:
+            v_family_name = input(f"{'Family Name': <30} : ")  
+            if(not validation("IsBlank", v_family_name)):
+                print("\n[*] Family Name can't be blank, Please enter a value.") 
+            else:
+                break
+        
+        while True:
+            v_dob = input(f"{'Date of Birth (DD-MMM-YYYY)': <30} : ")
+            if(not validation("IsBlank", v_dob)):
+                print("\n[*] Date of Birth can't be blank, Please enter a value.") 
+            else:
+                if(is_valid_date(v_dob) and is_valid_dob(v_dob)):
+                    break
+
+        while True:
+            v_email = input(f"{'Email Address': <30} : ")      
+            if(is_valid_email(v_email)):
+                break
+                        
+        v_input_customer = {
+            "first_name": v_first_name,
+            "family_name": v_family_name,
+            "birthdate": v_dob,
+            "email": v_email
+        }
+        
+        add_new_customer_to_list(v_input_customer)
+    
+        response = input("\n[!] Please \"Enter\" to add another new customer, Otherwise enter \"X\" for back to main menu :").upper() 
+        
+def add_new_customer_to_list(p_input_customer):
+    try:
+        #for key, value in p_input_customer.items():
+        
+        v_customer_id = unique_id()
+        v_first_name = p_input_customer["first_name"]
+        v_family_name = p_input_customer["family_name"]
+        v_birthdate = datetime.strptime(p_input_customer["birthdate"], v_date_format).date()
+        v_email = p_input_customer["email"]
+
+        customers.append((v_customer_id, v_first_name, v_family_name, v_birthdate, v_email))
+        
+    except KeyError as e:
+        print(f"Error: {e}")
+    except ValueError as e:
+        print(f"Error: Invalid value encountered. Please check the inputs. {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    finally:
+        display_formatted_row([single_underline_style*120], "{: ^120}")   
+        print(f"\n{f'Dear [{v_first_name} {v_family_name}]':^120}")
+        print(f"\n{'Your account has been successfully created.':^120}")
+        print(f"\n{'Welcome to SELWYN EVENT TICKET SYSTEM!, You can now purchase event tickets through the main menu.':^120}")
+        display_formatted_row([single_underline_style*120], "{: ^120}")   
+        
 #endregion
 
 #region Custom Method
 
 #region Customer
+
 def is_existing_customer(p_customer_id = "none") -> bool:
     for customer in customers:
         if(p_customer_id in str(customer[0])):
@@ -364,7 +449,7 @@ def render_customer_detail(p_customer) :
         v_family_name = p_customer[2]
         v_birthdate = p_customer[3]
         v_email = p_customer[4]
-        v_formatted_birthdate = v_birthdate.strftime("%d %b %Y")
+        v_formatted_birthdate = v_birthdate.strftime(v_date_display_format)
 
         #Render Customer Info
         display_formatted_row(["\nCustomer ID", f"{v_customer_id}"], "{: <20} : {: <50}") 
@@ -373,7 +458,6 @@ def render_customer_detail(p_customer) :
         display_formatted_row(["\nBirth Date", f"{v_formatted_birthdate}"], "{: <20} : {: <50}") 
         display_formatted_row(["\nEmail", f"{v_email}"], "{: <20} : {: <50}")
 
-    
 def list_events_by_customerid(p_customer_id):
     """
     Show evevnt list purchased by customer
@@ -381,7 +465,6 @@ def list_events_by_customerid(p_customer_id):
     
     #Variables
     total_ticket_bought = 0
-    v_future_eligible = False
     
     #Define Formatted Style
     display_customer_event_formatted_column_width = "{: <30} {: ^15} {: >14} {: >8} {: >14}"
@@ -403,7 +486,7 @@ def list_events_by_customerid(p_customer_id):
                 
                 #Set Value
                 v_event_name = event_name
-                v_event_date = details['event_date'].strftime("%d %b %Y")
+                v_event_date = details['event_date'].strftime(v_date_display_format)
                 v_age_restriction = details['age_restriction']
                 v_capacity = details['capacity']
                 v_tickets_bought = tickets_bought
@@ -450,7 +533,7 @@ def display_event_list_future_eligible(p_customer_id):
     for details in future_eligible_event:
         v_event_id = details['event_id']        
         v_event_name = details['event_name']
-        v_event_date = details['event_date'].strftime("%d %b %Y")
+        v_event_date = details['event_date'].strftime(v_date_display_format)
         v_age_restriction = details['age_restriction']
         v_capacity = details['capacity']
         v_ticket_sold = details['tickets_sold']        
@@ -467,13 +550,22 @@ def display_event_list_future_eligible(p_customer_id):
         buy_ticket_by_customerid(p_customer_id)
   
 def is_pass_age_restriction(p_event_age_restriction, p_customer_id) -> bool:
-    for customer in customers:
-        if(str(customer[0]) == str(p_customer_id)):
-            customer_birthdate = customer[3]
-            age_restriction_date = date(v_today.year - p_event_age_restriction, v_today.month, v_today.day)
-            return (age_restriction_date > customer_birthdate)
-    return False 
-
+    try:
+        for customer in customers:
+            if(str(customer[0]) == str(p_customer_id)):
+                customer_birthdate = customer[3]
+                age_restriction_date = date(v_today.year - p_event_age_restriction, v_today.month, v_today.day)
+                return (age_restriction_date > customer_birthdate)
+    except KeyError as e:
+        print(f"Error: {e}")
+        return False
+    except ValueError as e:
+        print(f"Error: Invalid value encountered. Please check the inputs. {e}")
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
+    
 def get_event_future_eligible_list(p_customer_id):
     future_eligible_event = []
     #Sorted by Event Name
@@ -546,19 +638,69 @@ def is_future_event(p_event_name = "none") -> bool:
 #endregion
 
 #region Validation
+
 def validation(p_validation_type = "none", p_validation_value = "none") -> bool:
-    match p_validation_type:
-        case "IsDigit":
+    match p_validation_type.upper():
+        case "ISDIGIT":
             if(p_validation_value.isdigit()):
                 return True
             else:
                 return False
-        case "IsBlank":
-                    if(p_validation_value.strip()):
-                        return True
-                    else:
-                        return False
-            
+        case "ISBLANK":
+            if(len(p_validation_value.strip()) == 0):
+                return False
+            else:
+                return True
+       
+def is_valid_date(p_dob) -> bool:
+    
+    try:
+        # Try parsing the input date
+        dob = datetime.strptime(p_dob, v_date_format)
+        return True
+    except ValueError:
+        print("[*] Invalid date format, Please enter the date in (DD-MMM-YYYY) format.") 
+        return False          
+       
+def is_valid_dob(p_dob) -> bool:
+    v_is_not_future_date = False
+    v_is_within_limit_age = False
+    v_return = True
+    
+    try:
+        #Convert string to datetime object
+        p_dob_date= datetime.strptime(p_dob, v_date_format).date()
+
+        #Check is future date
+        v_is_not_future_date = (v_today >= p_dob_date) 
+        
+        #Check within age limit
+        age_limit_date = datetime(v_today.year - CONSTANTS.AGE_LIMIT, v_today.month, v_today.day).date()
+        v_is_within_limit_age = (age_limit_date <= p_dob_date)
+        
+        if (not(v_is_not_future_date)):
+            print("[*] Please input date of birth is no later than the current date.") 
+            v_return = False   
+        else:
+            if (not(v_is_within_limit_age)):
+                print("[*] Please input date of birth is no earlier than 110 years before today.")                 
+                v_return = False    
+                           
+    except ValueError as e:
+        print(f"Error: Invalid value encountered. Please check the inputs. {e}")        
+        v_return = False  
+        
+    return v_return           
+       
+def is_valid_email(p_email) -> bool:
+    
+    email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if re.match(email_pattern, p_email):
+        return True
+    else:
+        print("[*] Invalid email format, Please enter a valid email address.")
+        return False
+
 #endregion
 
 #endregion
