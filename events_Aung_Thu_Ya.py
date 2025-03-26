@@ -1,7 +1,7 @@
 # ============== SELWYN EVENT TICKETING SYSTEM ==============
 # Student Name : AUNG THU YA
 # Student ID   : 1164080
-# For          : COMP 636: Python Assessment
+# For          : COMP 636 : Python Assessment
 # ===========================================================
  
 #region Import List
