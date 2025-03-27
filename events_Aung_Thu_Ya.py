@@ -87,7 +87,7 @@ def list_all_customers():
     
     #Render the header
     display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*25 ], display_customer_formatted_column_width) 
-    display_formatted_row(["ID"             , "First Name"        , "Family Name"             , "Birth Date"              , "Email"            ], display_customer_formatted_column_width)
+    display_formatted_row(["ID"                    , "First Name"             , "Family Name"            , "Birth Date"             , "Email"                   ], display_customer_formatted_column_width)
     display_formatted_row([double_underline_style*5, double_underline_style*15, double_underline_style*15, double_underline_style*14, double_underline_style*25 ], display_customer_formatted_column_width) 
 
     #Sorted by cusotmer id
@@ -101,7 +101,7 @@ def list_all_customers():
             birthdate = customer[3].strftime(v_date_display_format) 
             email = customer[4]
     
-            display_formatted_row([id,fname,famname,birthdate,email], display_customer_formatted_column_width)     # Use the display_formatted_row() function to display each row with consistent spacing
+            display_formatted_row([id, fname, famname, birthdate, email], display_customer_formatted_column_width)     # Use the display_formatted_row() function to display each row with consistent spacing
 
     #Render the footer
     display_formatted_row([single_underline_style*77], "{: <77}")     
@@ -613,6 +613,7 @@ def get_event_name_by_id(event_id, events):
 #endregion             
 
 #region Event
+
 def check_available_ticket(event_name = "none", p_ticket_count_to_buy = 0) -> bool:
     #TBD - testing for available ticket
     available_ticket_number = get_available_ticket(event_name)
